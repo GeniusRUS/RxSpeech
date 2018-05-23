@@ -2,6 +2,7 @@ package com.genius.rxspeech
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.genius.speech.RxSpeech
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity() {
             .requestText()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { tv_result.text = it[0] },
-        { it.printStackTrace() } )
+            .subscribe( { tv_result.text = it.toString() },
+        { Log.e("Speech", it.message, it) } )
     }
 }

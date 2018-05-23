@@ -7,6 +7,7 @@ import android.os.Binder
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.support.annotation.IntRange
+import android.support.annotation.StringRes
 import android.support.v4.app.BundleCompat
 import io.reactivex.Observable
 import java.lang.ref.WeakReference
@@ -21,6 +22,12 @@ class RxSpeech private constructor(context: Context) {
     private var maxResults = 3
     private var locale: Locale? = null
         get() { return field ?: Locale.getDefault() }
+
+    fun setPrompt(@StringRes messageId: Int): RxSpeech {
+        this.prompt = contextReference.get()?.getString(messageId)
+
+        return this
+    }
 
     fun setPrompt(message: String): RxSpeech {
         this.prompt = message
@@ -60,9 +67,17 @@ class RxSpeech private constructor(context: Context) {
         fun with(context: Context): RxSpeech {
             return RxSpeech(context)
         }
+
+        @JvmStatic
+        fun checkAnalyzerAvailable(context: Context): Boolean {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            return intent.resolveActivity(context.packageManager) != null
+        }
     }
 
     private class ContextNullException(reason: String): Exception(reason)
+
+    private class AnalyzerNotFound(reason: String): Exception(reason)
 
     class OverlapView: Activity() {
 
@@ -144,7 +159,7 @@ class RxSpeech private constructor(context: Context) {
         private fun startListening() {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, speech.locale)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, speech.locale.toString())
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, speech.maxResults)
 
             //TODO сделать возможность класть [RecognizerIntent.EXTRA_RESULTS_PENDINGINTENT & RecognizerIntent.EXTRA_RESULTS_PENDINGINTENT_BUNDLE]
@@ -154,6 +169,8 @@ class RxSpeech private constructor(context: Context) {
             }
             if (intent.resolveActivity(this.packageManager) != null) {
                 startActivityForResult(intent, REQ_CODE_SPEECH_INPUT)
+            } else {
+                speech.emitter.onError(AnalyzerNotFound("Voice recognition app not found"))
             }
         }
 
