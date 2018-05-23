@@ -2,12 +2,11 @@ package com.genius.rxspeech
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import com.genius.speech.RxSpeech
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -18,13 +17,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startDetect(v: View) {
-        RxSpeech.with(this)
-            .setPrompt("Custom title")
-            .setLocale(Locale("ru"))
-            .requestText()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { tv_result.text = it.toString() },
-        { Log.e("Speech", it.message, it) } )
+        launch(UI) {
+            val result = RxSpeech.with(this@MainActivity)
+                .setPrompt("Custom title")
+                .setLocale(Locale("ru"))
+                .requestText()
+
+            tv_result.text = result.toString()
+        }
     }
 }
