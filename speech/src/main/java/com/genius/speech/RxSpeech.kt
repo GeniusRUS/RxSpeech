@@ -20,7 +20,7 @@ class RxSpeech private constructor(context: Context) {
     private var prompt: String? = null
     private var maxResults = 3
     private var locale: Locale? = null
-        get() { return Locale.getDefault() }
+        get() { return field ?: Locale.getDefault() }
 
     fun setPrompt(message: String): RxSpeech {
         this.prompt = message
