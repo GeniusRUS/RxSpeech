@@ -18,10 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     fun startDetect(v: View) {
         launch(UI) {
-            val result = RxSpeech.with(this@MainActivity)
-                .setPrompt("Custom title")
-                .setLocale(Locale("ru"))
-                .requestText()
+            val result = RxSpeech.with(this@MainActivity, "Custom title", locale = Locale("ru")).requestText()
 
             tv_result.text = result.toString()
         }

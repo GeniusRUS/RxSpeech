@@ -15,37 +15,28 @@ import kotlinx.coroutines.experimental.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RxSpeech private constructor(context: Context) {
+class RxSpeech private constructor(context: Context, prompt: String?, @StringRes promptRes: Int?, locale: Locale?, @IntRange(from = 0) range: Int?) {
 
     private var contextReference: WeakReference<Context> = WeakReference(context)
     private lateinit var emitter: Channel<ArrayList<String>>
     private var prompt: String? = null
     private var maxResults = 3
     private var locale: Locale? = null
-        get() { return field ?: Locale.getDefault() }
 
-    fun setPrompt(@StringRes messageId: Int): RxSpeech {
-        this.prompt = contextReference.get()?.getString(messageId)
+    init {
+        prompt?.let {
+            this.prompt = it
+        }
 
-        return this
-    }
+        promptRes?.let {
+            this.prompt = contextReference.get()?.getString(it)
+        }
 
-    fun setPrompt(message: String): RxSpeech {
-        this.prompt = message
+        this.locale = locale?.let { it } ?: Locale.getDefault()
 
-        return this
-    }
-
-    fun setLocale(locale: Locale): RxSpeech {
-        this.locale = locale
-
-        return this
-    }
-
-    fun setMaxResults(@IntRange(from = 0) range: Int): RxSpeech {
-        this.maxResults = range
-
-        return this
+        range?.let {
+            this.maxResults = it
+        }
     }
 
     suspend fun requestText(): ArrayList<String> {
@@ -64,8 +55,8 @@ class RxSpeech private constructor(context: Context) {
     companion object {
 
         @JvmStatic
-        fun with(context: Context): RxSpeech {
-            return RxSpeech(context)
+        fun with(context: Context, prompt: String? = null, @StringRes promptRes: Int? = null, locale: Locale? = null, @IntRange(from = 0) range: Int? = null): RxSpeech {
+            return RxSpeech(context, prompt, promptRes, locale, range)
         }
 
         @JvmStatic
