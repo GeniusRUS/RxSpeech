@@ -55,8 +55,13 @@ class RxSpeech private constructor(context: Context, prompt: String?, @StringRes
     companion object {
 
         @JvmStatic
-        fun with(context: Context, prompt: String? = null, @StringRes promptRes: Int? = null, locale: Locale? = null, @IntRange(from = 0) range: Int? = null): RxSpeech {
-            return RxSpeech(context, prompt, promptRes, locale, range)
+        fun with(context: Context, prompt: String? = null, locale: Locale? = null, @IntRange(from = 0) range: Int? = null): RxSpeech {
+            return RxSpeech(context, prompt, null, locale, range)
+        }
+
+        @JvmStatic
+        fun with(context: Context, @StringRes promptRes: Int? = null, locale: Locale? = null, @IntRange(from = 0) range: Int? = null): RxSpeech {
+            return RxSpeech(context, null, promptRes, locale, range)
         }
 
         @JvmStatic
