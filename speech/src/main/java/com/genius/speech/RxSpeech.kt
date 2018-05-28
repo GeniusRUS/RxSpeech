@@ -9,16 +9,15 @@ import android.speech.RecognizerIntent
 import android.support.annotation.IntRange
 import android.support.annotation.StringRes
 import android.support.v4.app.BundleCompat
+import kotlinx.coroutines.experimental.CompletableDeferred
 import java.lang.ref.WeakReference
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
 class RxSpeech private constructor(context: Context, prompt: String?, @StringRes promptRes: Int?, locale: Locale?, @IntRange(from = 0) range: Int?) {
 
     private var contextReference: WeakReference<Context> = WeakReference(context)
-    private lateinit var emitter: Channel<ArrayList<String>>
+    private lateinit var emitter: CompletableDeferred<ArrayList<String>>
     private var prompt: String? = null
     private var maxResults = 3
     private var locale: Locale? = null
@@ -40,16 +39,16 @@ class RxSpeech private constructor(context: Context, prompt: String?, @StringRes
     }
 
     suspend fun requestText(): ArrayList<String> {
-        emitter = Channel()
+        emitter = CompletableDeferred()
 
         contextReference.get()?.let {
             it.startActivity(OverlapView.newInstance(it, this))
-        } ?: emitter.cancel(ContextNullException("Received context == null. Sorry"))
-        return emitter.receive()
+        } ?: emitter.completeExceptionally(ContextNullException("Received context == null. Sorry"))
+        return emitter.await()
     }
 
-    private suspend fun handleResult(text: ArrayList<String>) {
-        emitter.send(text)
+    private fun handleResult(text: ArrayList<String>) {
+        emitter.complete(text)
     }
 
     companion object {
@@ -112,11 +111,8 @@ class RxSpeech private constructor(context: Context, prompt: String?, @StringRes
             when (requestCode) {
                 REQ_CODE_SPEECH_INPUT -> {
                     if (resultCode == RESULT_OK && null != data) {
-
-                        launch {
-                            val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                            speech.handleResult(result)
-                        }
+                        val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                        speech.handleResult(result)
                     }
                 }
             }
@@ -168,7 +164,7 @@ class RxSpeech private constructor(context: Context, prompt: String?, @StringRes
             if (intent.resolveActivity(this.packageManager) != null) {
                 startActivityForResult(intent, REQ_CODE_SPEECH_INPUT)
             } else {
-                speech.emitter.cancel(AnalyzerNotFound("Voice recognition app not found"))
+                speech.emitter.completeExceptionally(AnalyzerNotFound("Voice recognition app not found"))
             }
         }
 
