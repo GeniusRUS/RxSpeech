@@ -1,5 +1,6 @@
 # RxSpeech
 [![](https://jitpack.io/v/GeniusRUS/RxSpeech.svg)](https://jitpack.io/#GeniusRUS/RxSpeech)
+[![CircleCI](https://circleci.com/gh/GeniusRUS/RxSpeech.svg?style=svg)](https://circleci.com/gh/GeniusRUS/RxSpeech)
 
 Простая библиотека, оборачивающая запрос голосового ввода в RX, в результате получающая `List<String>`
 
