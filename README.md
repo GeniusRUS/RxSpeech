@@ -1,7 +1,7 @@
 # RxSpeech
 [![](https://jitpack.io/v/GeniusRUS/RxSpeech.svg)](https://jitpack.io/#GeniusRUS/RxSpeech)
 [![CircleCI](https://circleci.com/gh/GeniusRUS/RxSpeech.svg?style=svg)](https://circleci.com/gh/GeniusRUS/RxSpeech)
-![license](https://img.shields.io/github/license/mashape/apistatus.svg)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/GeniusRUS/RxSpeech/blob/master/LICENSE)
 
 Простая библиотека, оборачивающая запрос голосового ввода в RX, в результате получающая `List<String>`
 
