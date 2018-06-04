@@ -18,9 +18,11 @@ class MainActivity : AppCompatActivity() {
 
     fun startDetect(v: View) {
         launch(UI) {
-            val result = RxSpeech.with(this@MainActivity, "Custom title", locale = Locale("ru")).requestText()
+            if (RxSpeech.checkAnalyzerAvailable(this@MainActivity)) {
+                val result = RxSpeech.with(this@MainActivity, "Custom title", locale = Locale("ru")).requestText().await()
 
-            tv_result.text = result.toString()
+                tv_result.text = result.toString()
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import android.support.annotation.IntRange
 import android.support.annotation.StringRes
 import android.support.v4.app.BundleCompat
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.Deferred
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.collections.ArrayList
@@ -38,13 +39,13 @@ class RxSpeech private constructor(context: Context, prompt: String?, @StringRes
         }
     }
 
-    suspend fun requestText(): ArrayList<String> {
+    fun requestText(): Deferred<ArrayList<String>> {
         emitter = CompletableDeferred()
 
         contextReference.get()?.let {
             it.startActivity(OverlapView.newInstance(it, this))
         } ?: emitter.completeExceptionally(ContextNullException("Received context == null. Sorry"))
-        return emitter.await()
+        return emitter
     }
 
     private fun handleResult(text: ArrayList<String>) {
